@@ -6,6 +6,7 @@ const markdownStyles = require("../components/markdown-styles");
 const CodeBlock = require("../components/markdown/code-block");
 const Navigation = require("../components/navigation");
 const Window = require("../components/photon/window");
+const BrowserWindow = require("../components/photon/browser-window");
 const RunKit = require("@petrified/runkit");
 
 
@@ -20,6 +21,16 @@ module.exports = function ({ children, ...rest })
         borderBottomRightRadius: "5px",
         overflow:"hidden"
     };
+    const BrowserWindowStyle =
+    {
+        position:"absolute",
+        top:"50px",
+        left:"600px",
+        borderBottomLeftRadius: "5px",
+        borderBottomRightRadius: "5px",
+        overflow:"hidden",
+        width: "500px"
+    }
 
     return  <Page { ...rest }>
                 <head>
@@ -35,15 +46,66 @@ module.exports = function ({ children, ...rest })
                         <Window
                             title = "server.js"
                             style = { RunKitWindowStyle }>
-                            <RunKit
-                                style = { { margin:"-1px", width: "500px", height: 500 } }
-                                gutterStyle = "inside"
-                                hideEndpointLogs = { true }
-                                mode = "endpoint" >
-                                5 + 5;
-                            </RunKit>
+                            <main>
+                                <RunKit
+                                    style = { { margin:"-1px", width: "500px", height: 500 } }
+                                    gutterStyle = "inside"
+                                    hideEndpointLogs = { true }
+                                    mode = "endpoint"
+                                    onLoad = "onLoad"
+                                    children = { [code] } />
+                            </main>
                         </Window>
+                        <script dangerouslySetInnerHTML = { { __html:"(" + RUN + ")()" } } />
+                        <BrowserWindow
+                            URL = "https://apple.com"
+                            style = { BrowserWindowStyle }
+                            innerHeight = "490px" />
                     </main>
                 </body>
             </Page>;
 }
+
+const code =`
+const http = require('http');
+
+const hostname = '127.0.0.1';
+const port = 3000;
+
+const server = http.createServer((req, res) => {
+  res.statusCode = 200;
+  res.setHeader('access-control-allow-origin', '*');
+  res.setHeader('Content-Type', 'text/plain');
+  res.end('Hello World\\n');
+});
+
+server.listen(port, hostname, () => {
+  console.log("Server running at http://{hostname}:{port}/");
+});`;
+
+function RUN()
+{
+    window.onLoad = function (embed)
+    {
+        embed
+            .getShareableURL(() => console.log("called!"))
+            .then(function ()
+            {
+                const endpointURL = embed.endpointURL;
+
+                console.log("GOT ENDPOINT URL " + embed.endpointURL);
+
+                console.log(fetch(embed.endpointURL)
+                    .then(response => response.text())
+                    .then(console.log)
+                    .catch(function(error)
+                    {
+                        console.log("error", error);
+                    }));
+        });
+    }
+}
+
+//https://untitled-i2i0dnt2fghj.runkit.sh
+//"https://untitled-mgqqsut1u44l.tonic.sh?url=" + encodeURIComponent(shareableURL);
+

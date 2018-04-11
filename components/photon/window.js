@@ -2,20 +2,49 @@ const React = require("react");
 const { css } = require("emotion");
 
 
-module.exports = function Window({ title = "", style, children })
+module.exports = function Window({ className, title = "", style, innerHeight, children })
 {
+    const { header, main } = find(["header", "main"], children);
+
     return  <div className = { `window ${styles()}` } style = { style } >
-                <header className = "toolbar toolbar-header">
-                    <div className = "window-buttons">
-                        <button className = "close"></button>
-                        <button className = "minimize"></button>
-                        <button className = "maximize"></button>
-                    </div>
+                <Toolbar header = { header } title = { title } />
+                <WindowContent { ...{ main, innerHeight } } />
+            </div>
+}
+
+function Toolbar({ header, title })
+{
+    if (!header)
+        return  <header className = "toolbar toolbar-header">
+                    <WindowButtons />
                     <h1 id = "title" className = "title">{ title }</h1>
-                </header>
-                <main id = "window-content" className = "window-content">
-                    { children }
-                </main>
+                </header>;
+
+    const props = header.props;
+    const className = "toolbar toolbar-header" + (props.className || "");
+    const children = [<WindowButtons />].concat(props.children || []);
+
+    return <header { ... { ...props, className, children } } />;
+}
+
+function WindowContent({ main, innerHeight })
+{
+    const props = main ? main.props : { };
+    const className = "window-content" + (props.className || "");
+
+    const style = innerHeight !== void(0) ?
+        { ...props.style, height: innerHeight } :
+        props.style;
+
+    return  <main { ...{ ...props, style, className } } />;
+}
+
+function WindowButtons()
+{
+    return  <div className = "window-buttons">
+                <button className = "close"></button>
+                <button className = "minimize"></button>
+                <button className = "maximize"></button>
             </div>
 }
 
@@ -158,4 +187,19 @@ function styles()
         -webkit-user-select: text;
     }*/
     `;
+}
+
+function find(tags, children)
+{
+    const names = tags.reduce((names, tag) =>
+        Object.assign(names, { [tag]: tag }),
+        Object.create(null));
+
+    return [].concat(children)
+        .reduce((findings, child) =>
+            child && typeof child.type === "string" &&
+            hasOwnProperty.call(names, child.type) ?
+                Object.assign(findings, { [child.type]: child }) :
+                findings,
+            Object.create(null));
 }
