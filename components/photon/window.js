@@ -1,15 +1,36 @@
 const React = require("react");
 const { css } = require("emotion");
+const Defaults = { };
 
 
-module.exports = function Window({ className, title = "", style, innerHeight, children })
+module.exports = Window;
+
+function Window({ className, title = "", style, innerHeight, children })
 {
-    const { header, main } = find(["header", "main"], children);
+    const { header, main, rest } = find(["header", "main"], children);
 
     return  <div className = { `window ${styles()}` } style = { style } >
                 <Toolbar header = { header } title = { title } />
+                { rest }
                 <WindowContent { ...{ main, innerHeight } } />
             </div>
+}
+
+Window.Tabs = function Tabs({ items })
+{
+    return  <div className = "tab-group">
+            {
+                items.map(({ active, closable, title }, index) =>
+                    <div    key = { index }
+                            className = { `tab-item ${active ? "active" : "" }` }  >
+                        {
+                            closable &&
+                            <span className = "icon icon-cancel icon-close-tab" />
+                        }
+                        { title }
+                    </div>)
+            }
+            </div>;
 }
 
 function Toolbar({ header, title })
@@ -64,11 +85,17 @@ function styles()
         border-top-right-radius:6px;
         border:1px solid rgb(190, 190, 190);
 
+        /* don't understand. */
+        .tab-group
+        {
+            z-index: 100;
+        }
+
         .window-buttons
         {
             margin:0;
             padding: 0;
-            margin-left: 5px;
+            margin-left: 15px;
             height:100%;
             min-height:20px;
             position: absolute;
@@ -190,17 +217,19 @@ function styles()
     `;
 }
 
+
 function find(tags, children)
 {
     const names = tags.reduce((names, tag) =>
         Object.assign(names, { [tag]: tag }),
         Object.create(null));
+    const rest = [];
 
     return [].concat(children)
         .reduce((findings, child) =>
             child && typeof child.type === "string" &&
             hasOwnProperty.call(names, child.type) ?
                 Object.assign(findings, { [child.type]: child }) :
-                findings,
-            Object.create(null));
+                (rest.push(child), findings),
+            { rest });
 }

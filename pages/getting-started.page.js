@@ -9,7 +9,7 @@ const Window = require("../components/photon/window");
 const BrowserWindow = require("../components/photon/browser-window");
 const RunKit = require("@petrified/runkit");
 
-const { readFileSync } = require("fs");
+const { readFileSync, readdirSync } = require("fs");
 const toBase64 = require("./getting-started/to-base64");
 
 const IFrameInjectionPreamble = readFileSync(
@@ -17,6 +17,15 @@ const IFrameInjectionPreamble = readFileSync(
 
 const InjectedIFrameBase64 = toBase64(require("./getting-started/injected-iframe"));
 const InlineScript = require("./getting-started/inline-script");
+
+const examplesPath = `${__dirname}/getting-started/examples/`;
+const examples = readdirSync(examplesPath)
+    .map((filename, index) =>
+    ({
+        title: filename.replace(/^\d+-/g, ""),
+        source: readFileSync(`${examplesPath}/${filename}`, "utf-8"),
+        active: index === 0
+    }));
 
 
 module.exports = function ({ children, ...rest })
@@ -34,7 +43,7 @@ module.exports = function ({ children, ...rest })
     {
         position:"absolute",
         top:"50px",
-        left:"600px",
+        left:"700px",
         borderBottomLeftRadius: "5px",
         borderBottomRightRadius: "5px",
         overflow:"hidden",
@@ -55,6 +64,7 @@ module.exports = function ({ children, ...rest })
                         <Window
                             title = "server.js"
                             style = { RunKitWindowStyle }>
+                            <Window.Tabs items = { examples } />
                             <main>
                                 <RunKit
                                     style = { { margin:"-1px", width: "500px", height: 500 } }
@@ -63,36 +73,20 @@ module.exports = function ({ children, ...rest })
                                     preamble = { IFrameInjectionPreamble }
                                     mode = "endpoint"
                                     onLoad = "onLoad"
-                                    children = { [code] } />
+                                    children = { [examples[0].source] } />
                             </main>
                         </Window>
                         <InlineScript
                             from = { RUN }
                             constants = { { InjectedIFrameBase64 } } />
                         <BrowserWindow
-                            displayURL = "https://localhost"
+                            displayURL = "http://localhost"
                             style = { BrowserWindowStyle }
                             innerHeight = "490px" />
                     </main>
                 </body>
             </Page>;
 }
-
-const code =`
-const http = require('http');
-
-const hostname = '127.0.0.1';
-const port = 3000;
-
-const server = http.createServer((req, res) => {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'text/plain');
-  res.end('Hello World\\n');
-});
-
-server.listen(port, hostname, () => {
-  console.log("Server running at http://{hostname}:{port}/");
-});`;
 
 function RUN()
 {
@@ -105,15 +99,20 @@ function RUN()
             {
                 const endpointURL = embed.endpointURL;
                 const iframe = document.getElementById("FIXME-browser-iframe");
-/*
+                const progressBar = document.getElementById("FIXME-browser-progress-bar");
+
                 window.addEventListener("message", function ({ source, origin, data })
                 {
                     if (source !== iframe.contentWindow)
                         return;
 
-                    if (data === "ready")
-                        iframe.src = embed.endpointURL;
-                });*/
+                    if (data === "fetched")
+                    {
+                        progressBar.classList.remove("animate-load");
+                        setTimeout(() =>
+                            progressBar.classList.add("animate-load"), 0);
+                    }
+                });
 
                 setTimeout(function () {
                 iframe.src = embed.endpointURL +

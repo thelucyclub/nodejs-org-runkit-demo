@@ -32,7 +32,7 @@ function script()
     {
         iframe.removeEventListener("load", loaded);
 console.log("LOADED!");
-        const loop = { fetching: false };
+        const loop = { text: {}, fetching: false };
 
         setInterval(function fetchLoop()
         {
@@ -45,13 +45,20 @@ console.log("LOADED!");
                 .then(response => response.text())
                 .then(function (text)
                 {
+                    loop.fetching = false;
+
+                    if (text === loop.text)
+                        return;
+
+                    window.parent.postMessage("fetched", "*");
+
                     const remoteDocument = iframe.contentWindow.document;
     
                     remoteDocument.open();
                     remoteDocument.write(text);
                     remoteDocument.close();
     
-                    loop.fetching = false;
+                    loop.text = text;
                 })
                 .catch(() => loop.fetching = false);
         }, 500);
