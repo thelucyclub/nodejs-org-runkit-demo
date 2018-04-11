@@ -6,10 +6,21 @@ const markdownStyles = require("../components/markdown-styles");
 const CodeBlock = require("../components/markdown/code-block");
 const Navigation = require("../components/navigation");
 const Window = require("../components/photon/window");
+const RunKit = require("@petrified/runkit");
 
 
 module.exports = function ({ children, ...rest })
 {
+    const RunKitWindowStyle =
+    {
+        position:"absolute",
+        top:"50px",
+        left:"100px",
+        borderBottomLeftRadius: "5px",
+        borderBottomRightRadius: "5px",
+        overflow:"hidden"
+    };
+
     return  <Page { ...rest }>
                 <head>
                     <link rel = "stylesheet" href = "https://themes.runkitcdn.com/runkit-light.css" />
@@ -21,13 +32,16 @@ module.exports = function ({ children, ...rest })
                         <Navigation/>
                     </div>
                     <main css = "margin-left:235px; width:calc(100vw - 235px)" >
-                        <Window title = "server.js" style = { { position:"absolute", top:"50px", left:"100px", width: "500px" } }>
-                            <div style = { { width: "100%" } } id = "x">5+5</div>
-                            <script src = "https://embed.tonic.work"
-                                data-gutter-style = "inside"
-                                data-hide-endpoint-logs = "true"
-                                data-mode = "endpoint"
-                                data-element-id = "x"/>
+                        <Window
+                            title = "server.js"
+                            style = { RunKitWindowStyle }>
+                            <RunKit
+                                style = { { margin:"-1px", width: "500px", height: 500 } }
+                                gutterStyle = "inside"
+                                hideEndpointLogs = { true }
+                                mode = "endpoint" >
+                                5 + 5;
+                            </RunKit>
                         </Window>
                     </main>
                 </body>

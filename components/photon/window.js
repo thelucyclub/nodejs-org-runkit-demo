@@ -109,6 +109,7 @@ function styles()
         {
             width: auto;
             min-width: 100%;
+            overflow: inherit;
         }
     
       
