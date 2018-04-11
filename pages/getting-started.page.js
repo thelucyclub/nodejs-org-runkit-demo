@@ -9,6 +9,15 @@ const Window = require("../components/photon/window");
 const BrowserWindow = require("../components/photon/browser-window");
 const RunKit = require("@petrified/runkit");
 
+const { readFileSync } = require("fs");
+const toBase64 = require("./getting-started/to-base64");
+
+const IFrameInjectionPreamble = readFileSync(
+    require.resolve("./getting-started/iframe-injection-preamble"), "utf-8");
+
+const InjectedIFrameBase64 = toBase64(require("./getting-started/injected-iframe"));
+const InlineScript = require("./getting-started/inline-script");
+
 
 module.exports = function ({ children, ...rest })
 {
@@ -51,14 +60,17 @@ module.exports = function ({ children, ...rest })
                                     style = { { margin:"-1px", width: "500px", height: 500 } }
                                     gutterStyle = "inside"
                                     hideEndpointLogs = { true }
+                                    preamble = { IFrameInjectionPreamble }
                                     mode = "endpoint"
                                     onLoad = "onLoad"
                                     children = { [code] } />
                             </main>
                         </Window>
-                        <script dangerouslySetInnerHTML = { { __html:"(" + RUN + ")()" } } />
+                        <InlineScript
+                            from = { RUN }
+                            constants = { { InjectedIFrameBase64 } } />
                         <BrowserWindow
-                            URL = "https://apple.com"
+                            displayURL = "https://localhost"
                             style = { BrowserWindowStyle }
                             innerHeight = "490px" />
                     </main>
@@ -74,7 +86,6 @@ const port = 3000;
 
 const server = http.createServer((req, res) => {
   res.statusCode = 200;
-  res.setHeader('access-control-allow-origin', '*');
   res.setHeader('Content-Type', 'text/plain');
   res.end('Hello World\\n');
 });
@@ -87,22 +98,29 @@ function RUN()
 {
     window.onLoad = function (embed)
     {
+        
         embed
-            .getShareableURL(() => console.log("called!"))
+            .getShareableURL()
             .then(function ()
             {
                 const endpointURL = embed.endpointURL;
+                const iframe = document.getElementById("FIXME-browser-iframe");
+/*
+                window.addEventListener("message", function ({ source, origin, data })
+                {
+                    if (source !== iframe.contentWindow)
+                        return;
 
-                console.log("GOT ENDPOINT URL " + embed.endpointURL);
+                    if (data === "ready")
+                        iframe.src = embed.endpointURL;
+                });*/
 
-                console.log(fetch(embed.endpointURL)
-                    .then(response => response.text())
-                    .then(console.log)
-                    .catch(function(error)
-                    {
-                        console.log("error", error);
-                    }));
-        });
+                setTimeout(function () {
+                iframe.src = embed.endpointURL +
+                    "/jefkasjdfkjasdklfjsldkf/iframe?base64=" +
+                    encodeURIComponent("InjectedIFrameBase64");
+                }, 1000);
+            });
     }
 }
 
