@@ -139,6 +139,7 @@ function styles()
             width: auto;
             min-width: 100%;
             overflow: inherit;
+            user-select: default;
         }
     
       
