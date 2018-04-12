@@ -148,7 +148,6 @@ function styles()
             border-radius:6px;
             border:1px solid rgb(190, 190, 190);
             position:relative;
-            display:inline-block;
 
             z-index: 1;
             margin:0 auto;
@@ -168,7 +167,6 @@ function styles()
             overflow: inherit;
             user-select: default;
             display: block;
-            flex: initial;
         }
     
       

@@ -40,7 +40,7 @@ function script()
 
             loop.needsFetching = false;
             loop.fetching = true;
-
+console.log("I AM FETCHING " + origin);
             fetch(origin)
                 .then(response => response.text())
                 .then(function (text)

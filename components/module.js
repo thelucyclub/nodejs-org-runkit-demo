@@ -22,7 +22,9 @@ module.exports = function ({ children, ...rest })
                 <body css = "font-family: Roboto; font-size:16px; padding: 0; margin: 0" >
                     <script src = "https://embed.tonic.work" />
                     <div css = "width: 235px; position:fixed; height: 100vh; overflow: scroll">
-                        <Navigation/>
+                        <Navigation>
+                            { NavLinks }
+                        </Navigation>
                     </div>
                     <main css = "margin-left:235px; width:calc(100vw - 235px)" >
                         <div className = { markdownStyles + " margins fluid-content" } >
@@ -68,7 +70,7 @@ function Stability({ stability })
         text-transform: uppercase;
         font-size: 80%;
         font-weight: bold;`;
-    
+
     const names = ["Deprecated", "Experimental", "Stable"];
 
     return <span css = { css }>{ names[stability] }</span>;
@@ -84,7 +86,7 @@ function toSections(children)
         if (child.props.level === 1 || child.props.level === 2 || child.props.level === 3)
         {
             sections.push({ header:[child], children:[] });
-            
+
             continue;
         }
 
@@ -107,9 +109,57 @@ function toSections(children)
         else
             section.children.push(child);
     }
-    
+
     return sections;
-    
-    
 }
+
+const NavLinks =
+[
+    "Assertion Testing",
+    "Async Hooks",
+    "Buffer",
+    "C++ Addons",
+    "C/C++ Addons - N-API",
+    "Child Processes",
+    "Cluster",
+    "Command Line Options",
+    "Console",
+    "Crypto",
+    "Debugger",
+    "Deprecated APIs",
+    "DNS",
+    "Domain",
+    "ECMAScript Modules",
+    "Errors",
+    "Events",
+    "File System",
+    "Globals",
+    "HTTP",
+    "HTTP/2",
+    "HTTPS",
+    "Inspector",
+    "Internationalization",
+    "Modules",
+    "Net",
+    "OS",
+    "Path",
+    "Performance Hooks",
+    "Process",
+    "Punycode",
+    "Query Strings",
+    "Readline",
+    "REPL",
+    "Stream",
+    "String Decoder",
+    "Timers",
+    "TLS/SSL",
+    "Tracing",
+    "TTY",
+    "UDP/Datagram",
+    "URL",
+    "Utilities",
+    "V8",
+    "VM",
+    "ZLIB"
+]
 
