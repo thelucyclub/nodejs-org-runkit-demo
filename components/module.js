@@ -20,7 +20,7 @@ module.exports = function ({ children, ...rest })
                     <link rel = "stylesheet" href = "https://themes.runkitcdn.com/runkit-light.css" />
                 </head>
                 <body css = "font-family: Roboto; font-size:16px; padding: 0; margin: 0" >
-                    <script src = "https://embed.tonic.work" />
+                    <script src = "https://embed.runkit-demo.com" />
                     <div css = "width: 235px; position:fixed; height: 100vh; overflow: scroll">
                         <Navigation>
                             { NavLinks }

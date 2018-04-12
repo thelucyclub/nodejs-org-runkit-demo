@@ -46,7 +46,7 @@ module.exports = function ({ children, ...rest })
                     <link rel = "stylesheet" href = "/assets/css/photon.min.css" />
                 </head>
                 <body css = { style } >
-                    <script src = "https://embed.tonic.work" />
+                    <script src = "https://embed.runkit-demo.com" />
                     <nav>
                         <Navigation>
                             { articleContents.map(({ markup }) => markup[0].props.children) }
