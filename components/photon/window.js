@@ -167,6 +167,8 @@ function styles()
             min-width: 100%;
             overflow: inherit;
             user-select: default;
+            display: block;
+            flex: initial;
         }
     
       
