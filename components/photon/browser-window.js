@@ -31,7 +31,7 @@ module.exports = function BrowserWindow({ URL, displayURL = URL, ...rest })
                     </button>
                 </header>
                 <main>
-                    <iframe id = "FIXME-browser-iframe" { ...props.iframe } src = { URL } />
+                    <iframe className = "browser-iframe" { ...props.iframe } src = { URL } />
                 </main>
             </Window>;
 }
@@ -49,12 +49,12 @@ function ProgressBar()
         bottom: 0;
         left: 0;`;
 
-    return <span id = "FIXME-browser-progress-bar" className = { style } />
+    return <span className = { `browser-progress-bar ${style}` } />
 }
 
 const styles =
 {
-    iframe: { border:0, marign:0, padding:0, height:"100%", width:"100%", background:"transparent" },
+    iframe: { border:0, margin:0, padding:0, height:"100%", width:"100%", height:"100%", background:"transparent" },
     locationBar: { display:"flex", width: "50%", margin:"4px auto", position: "relative" },
     location: { flex: "1 0 0", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
     reload: { flex:"0 0 auto", transform:"rotate(-90deg)", marginTop:"0px" }
@@ -62,7 +62,7 @@ const styles =
 
 const props =
 {
-    iframe: { style: styles.iframe, frameBorder:0, allowtransparancy: "true", width: "100%", height: "100%" }
+    iframe: { style: styles.iframe, frameBorder:0, allowtransparancy: "true", width: "100%", height:"100%" }
 }
 
 /*

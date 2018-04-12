@@ -2,8 +2,6 @@ const React = require("react");
 const { css } = require("emotion");
 
 const Page = require("../components/page");
-const markdownStyles = require("../components/markdown-styles");
-const CodeBlock = require("../components/markdown/code-block");
 const Navigation = require("../components/navigation");
 const Window = require("../components/photon/window");
 const BrowserWindow = require("../components/photon/browser-window");
@@ -17,22 +15,6 @@ const IFrameInjectionPreamble = readFileSync(
 
 const InjectedIFrameBase64 = toBase64(require("./getting-started/injected-iframe"));
 const InlineScript = require("./getting-started/inline-script");
-
-const examplesPath = `${__dirname}/getting-started/examples/`;
-const examples = readdirSync(examplesPath)
-    .map((filename, index) =>
-    ({
-        title: filename.replace(/^\d+-/g, ""),
-        source: readFileSync(`${examplesPath}/${filename}`, "utf-8"),
-        active: index === 0
-    }));
-
-/*const articles = const examples = readdirSync(articlesPath)
-    .map((filename, index) =>
-    ({
-        source: readFileSync(`${articlesPath}/${filename}`, "utf-8"),
-        active: index === 0
-    }));*/
 
 const cm = require("@petrified/build/transform/common-mark")
 
@@ -84,16 +66,6 @@ module.exports = function ({ children, ...rest })
             </Page>;
 }
 
-function MD({ children })
-{
-    return  <div>
-                <h1>Getting Started with Node.js</h1>
-                <div className = { markdownStyles + " margins fluid-content" } >
-                    { children }
-                </div>
-            </div>
-}
-
 function RUN()
 {
     window.onLoad = function (embed)
@@ -104,8 +76,16 @@ function RUN()
             .then(function ()
             {
                 const endpointURL = embed.endpointURL;
-                const iframe = document.getElementById("FIXME-browser-iframe");
-                const progressBar = document.getElementById("FIXME-browser-progress-bar");
+                var article = embed.element;
+
+                while (article.tagName !== "ARTICLE")
+                    article = article.parentNode;
+
+                const iframe = article.querySelector(".browser-iframe");
+                const progressBar = article.querySelector(".browser-progress-bar");
+                const { contentWindow } = iframe;
+
+                embed.onSave = () => { console.log("POSTING REFRESH"); contentWindow.postMessage("refresh", "*"); }
 
                 window.addEventListener("message", function ({ source, origin, data })
                 {
@@ -142,6 +122,7 @@ function Article({ children })
 
         & > main
         {
+            border-top:1px solid transparent;
             width: 50%;
             max-width: 50%;
             padding: 0px 50px 0px 50px;
@@ -150,10 +131,8 @@ function Article({ children })
         & > figure
         {
             margin-top: 40px;
-            display: flex;
             padding: 0px 50px;
-            justify-content: space-between;
-            align-items: stretch;
+            width: 100%;
         }
         
         .window
@@ -162,7 +141,8 @@ function Article({ children })
             border-bottom-right-radius: 5px;
             position: relative;
             overflow: hidden;
-            flex: 1 0 0;
+            display: inline-block;
+            width: calc(50% - 50px);
         }
         
         .window:first-child { margin-right: 50px }
@@ -256,9 +236,7 @@ function Article({ children })
                                 children = { [examples[0].literal] } />
                         </main>
                     </Window>
-                     <BrowserWindow
-                        displayURL = "http://localhost:8000"
-                        innerHeight = "100px" />
+                     <BrowserWindow displayURL = "http://localhost:8000" />
                 </figure>
             </article>;
 }
@@ -266,10 +244,4 @@ function Article({ children })
 Article.Code = function ({ codeinfo, literal })
 {
     return <code { ...{ codeinfo, literal } } />;
-}
-
-
-function styles()
-{
-
 }

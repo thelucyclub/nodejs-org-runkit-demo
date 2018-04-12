@@ -27,20 +27,20 @@ function script()
 {
     const iframe = document.getElementById("iframe");
     const { origin, pathname } = window.location;
+    const loop = { text: {}, needsFetching: true, fetching: false };
 
     iframe.addEventListener("load", function loaded()
     {
         iframe.removeEventListener("load", loaded);
-console.log("LOADED!");
-        const loop = { text: {}, fetching: false };
 
         setInterval(function fetchLoop()
         {
-            if (loop.fetching)
+            if (loop.fetching || !loop.needsFetching)
                 return;
-    
+
+            loop.needsFetching = false;
             loop.fetching = true;
-    
+
             fetch(origin)
                 .then(response => response.text())
                 .then(function (text)
@@ -61,9 +61,7 @@ console.log("LOADED!");
                     loop.text = text;
                 })
                 .catch(() => loop.fetching = false);
-        }, 500);
-
-//        window.parent.postMessage("ready", "*");
+        }, 100);
     });
     iframe.src = `${origin}${pathname}?base64=${encodeURIComponent("EmptyBase64")}`;
     
@@ -72,7 +70,7 @@ console.log("LOADED!");
         if (source !== window.parent)
             return;
 
-//        fetchLoop(data, iframe);
+        loop.needsFetching = true;
     });
 }
 
